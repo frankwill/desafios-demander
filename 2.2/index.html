@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TreeMap - Os cinco paises mais populosos do mundo.</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="treemap" width="800" height="600"></canvas>
+  <script>
+    // https://brasilescola.uol.com.br/geografia/paises-mais-populosos-mundo.htm
+    const populationCountries = [
+      { country: 'China', value: 1439324000 },
+      { country: 'Índia', value: 1380004000 },
+      { country: 'Estados Unidos', value: 331003000 },
+      { country: 'Indonésia', value: 273524000 },
+      { country: 'Paquistão', value: 220892000 }
+    ]
+
+    const canvas = document.getElementById('treemap')
+    const ctx = canvas.getContext('2d')
+    const width = canvas.width
+    const height = canvas.height
+
+    function drawTreeMap(data, x, y, width, height) {
+      const totalValue = data.reduce((sum, item) => sum + item.value, 0)
+      const maxValue = Math.max(...data.map(item => item.value))
+      let currentX = x
+      let currentY = y
+
+      data.forEach(item => {
+        const area = (item.value / totalValue) * width * height
+        const rectWidth = Math.sqrt(area * (width / height))
+        const rectHeight = area / rectWidth
+
+        const colorIntensity = Math.floor((item.value / maxValue) * 255)
+        ctx.fillStyle = `rgb(${colorIntensity}, ${255 - colorIntensity}, 100)`
+
+        ctx.fillRect(currentX, currentY, rectWidth, rectHeight)
+        ctx.strokeRect(currentX, currentY, rectWidth, rectHeight)
+
+        ctx.fillStyle = 'white'
+        ctx.font = '16px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+
+        const textX = currentX + rectWidth / 2
+        const textY = currentY + rectHeight / 2    
+        ctx.fillText(item.country, textX, textY)
+        ctx.fillText(`(${item.value})`, textX, textY + 25)
+
+        currentX += rectWidth
+        if (currentX > x + width) {
+          currentX = x
+          currentY += rectHeight
+        }
+      })
+    }
+
+    drawTreeMap(populationCountries, 0, 0, width, height)
+  </script>
+</body>
+</html>
